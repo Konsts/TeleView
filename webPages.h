@@ -945,6 +945,19 @@ void deletePage() {
 void capturePage(){
   if (configItems.webCaptureOn){
     camera_fb_t * fb = NULL;
+    #if defined(FLASH_LAMP_PIN)
+    if (configItems.useFlash){
+      ESP_LOGV(TAG_TELE,"Switching Flash-lamp ON");
+      digitalWrite(FLASH_LAMP_PIN, HIGH);
+      delay(250);
+      ESP_LOGV(TAG_TELE,"The Flash-lamp is ON");
+    }
+    #endif
+    for (int i=0; i<2; i++) {
+      fb = esp_camera_fb_get();
+      delay(1500);
+      esp_camera_fb_return(fb);
+    }
     fb = esp_camera_fb_get();
     if (!fb) {
       ESP_LOGE(TAG_WEB,"Camera capture failed");
@@ -958,6 +971,13 @@ void capturePage(){
       esp_camera_fb_return(fb);
       fb = NULL;
     }
+    #if defined(FLASH_LAMP_PIN)
+      if (configItems.useFlash){
+      delay(10);
+      digitalWrite(FLASH_LAMP_PIN, LOW); 
+      ESP_LOGV(TAG_TELE,"Flash-lamp OFF");
+    }
+#endif
   }
 }
 ///////////////////////////////////////////////////////////
