@@ -361,7 +361,7 @@ void handleNewMessages(int numNewMessages) {
           bTeleAnsMode=MODE_SET_NONE;
           configItems.cvIntervalSec=(int) text.toInt(); }
         ////////////////////////////////////////////////////
-        if (text.startsWith("/sendPhoto ") ) {
+        if (text.startsWith("/sendPhoto") || text.startsWith("/sendphoto")) {
           ESP_LOGV(TAG_TELE,"handleNewMessages/sendPhoto:BEGIN");
           if(bot.messages[i].type == "channel_post") {
             bot.sendMessage(bot.messages[i].chat_id, bot.messages[i].chat_title + " " + bot.messages[i].text, "");
@@ -375,13 +375,13 @@ void handleNewMessages(int numNewMessages) {
           }
           ESP_LOGV(TAG_TELE,"handleNewMessages/sendPhoto:END");
           bPrintOptions=false;
-        }else if(text.startsWith("/options ")) {
+        }else if(text.startsWith("/options")) {
           bPrintOptions=true;
           if(bot.sendMessageWithReplyKeyboard(chat_id, "", "Markdown", formulateKeyboardJson(), true) )
             ESP_LOGV(TAG_TELE,"bot.sendMessageWithReplyKeyboard:TRUE");
           else
             ESP_LOGV(TAG_TELE,"bot.sendMessageWithReplyKeyboard:FALSE");
-        }else if(text.startsWith("/changeRes ") ){
+        }else if(text.startsWith("/changeRes") ){
           bPrintOptions=false;
           bInlineKeyboardExtraOptions=false;
           bInlineKeyboardResolution=true;
@@ -389,19 +389,19 @@ void handleNewMessages(int numNewMessages) {
         }
         //[:ADD INT HERE:]#6
         //[:ADD STRING HERE:]#6
-        else if(text.startsWith("/setlapse ") ){
+        else if(text.startsWith("/setlapse") ){
           configItems.lapseTime=0;
           bot.sendMessage(chat_id, "Please insert Lapse Time in minutes:", "");
           bTeleAnsMode=MODE_SET_lapseTime;
           bPrintOptions=false;
         }
-        else if(text.startsWith( "/setcvChangePercent ") ) {
+        else if(text.startsWith( "/setcvChangePercent") ) {
           configItems.cvChangePercent=0;
           bot.sendMessage(chat_id, "Please insert CV change percentage:", "");
           bTeleAnsMode=MODE_SET_cvChangePercent;
           bPrintOptions=false;
         }
-        else if(text.startsWith("/setcvIntervalSec ") ){
+        else if(text.startsWith("/setcvIntervalSec") ){
           configItems.cvIntervalSec=0;
           bot.sendMessage(chat_id, "Please insert time in ms between two CV frames:", "");
           bTeleAnsMode=MODE_SET_cvIntervalSec;
@@ -415,7 +415,7 @@ void handleNewMessages(int numNewMessages) {
         }else if( text.startsWith("/restartESP") ) {
           numNewMessages = bot.getUpdates((bot.last_message_received) + 1);
           ESP.restart();
-        }else if ( text.startsWith("/start ") ){
+        }else if ( text.startsWith("/start") ){
           String welcome = "```\n";
           welcome += "*Command*    |*Description*\n";
           welcome += "-----|-----\n";
@@ -628,10 +628,23 @@ String sendCapturedImage2Telegram2(String chat_id,String messageText ,uint16_t m
 #endif
 
   ESP_LOGV(TAG_TELE,"Capture Photo");
+  for (int i=0; i<2; i++) {
+    fb = esp_camera_fb_get();
+    delay(1500);
+    esp_camera_fb_return(fb);
+  }
   fb = esp_camera_fb_get();
   if(!fb) {
     ESP_LOGE(TAG_TELE,"Camera capture failed");
     delay(1000);
+
+    #if defined(FLASH_LAMP_PIN)
+    if (configItems.useFlash){
+      delay(10);
+     digitalWrite(FLASH_LAMP_PIN, LOW); 
+     ESP_LOGV(TAG_TELE,"Flash-lamp OFF");
+    }
+    #endif
     ESP.restart();
   }
 #if defined(FLASH_LAMP_PIN)
@@ -641,6 +654,7 @@ String sendCapturedImage2Telegram2(String chat_id,String messageText ,uint16_t m
     ESP_LOGV(TAG_TELE,"Flash-lamp OFF");
   }
 #endif
+  delay(2000);
   int fb_width=fb->width;
   int fb_height=fb->height;
   ESP_LOGV(TAG_TELE,"sendChatAction#1");
