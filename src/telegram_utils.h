@@ -780,7 +780,7 @@ String sendCapturedImage2Telegram2(String chat_id,String messageText ,uint16_t m
     // Test if parsing succeeds.
     if (error) {
       ESP_LOGE(TAG_TELE,"sendCapturedImage2Telegram2:deserializeJson() failed: ");
-      ESP_LOGE(TAG_TELE,"%s",error.f_str());
+      ESP_LOGE(TAG_TELE,"%s",error.c_str());
       result="Can't parse response.";
     }
     boolean responseOK=doc["ok"];

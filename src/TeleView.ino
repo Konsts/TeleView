@@ -488,7 +488,7 @@ void handle_telegram(void * param ){
       if (bTakePhotoTick){
         extraMessage="for the next " + String(configItems.lapseTime) + " minutes.";
       }
-      alertTelegram("ESP is going to sleep "+extraMessage,false);
+      alertTelegram("ESP is going to sleep " + extraMessage,false);
       #ifdef CAMERA_MODEL_M5STACK_PSRAM
         // disable bat output, will wake up after 5 sec, Sleep current is 1~2μA
         ESP_LOGV(TAG_MAIN,"bat_disable_output");
